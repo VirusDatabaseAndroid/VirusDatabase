@@ -1,0 +1,51 @@
+name: Sign and Deploy to gh-pages
+
+on:
+  push:
+    branches:
+      - unsigned
+
+jobs:
+  sign-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # ✅ Checkout gh-pages branch to access GPG key
+      - name: Fetch GPG key from gh-pages branch
+        run: |
+          git fetch origin gh-pages
+          git checkout gh-pages -- gpg.key
+
+      - name: Import GPG key
+        run: |
+          gpg --import gpg.key
+
+      - name: Checkout unsigned branch
+        run: |
+          git checkout unsigned
+
+      # ✅ Sign files and create `.sig` files
+      - name: Sign files
+        run: |
+          mkdir -p signed
+          for file in *; do
+            if [[ -f "$file" && "$file" != *.sig ]]; then
+              echo "Signing $file..."
+              gpg --batch --yes --detach-sign --armor -o "signed/$file.sig" "$file"
+              cp "$file" signed/
+            fi
+          done
+
+      # ✅ Push signed files to gh-pages branch
+      - name: Deploy signed files to gh-pages
+        run: |
+          git checkout gh-pages
+          cp -r signed/* .
+          git add .
+          git commit -m "Signed files from unsigned branch"
+          git push origin gh-pages
