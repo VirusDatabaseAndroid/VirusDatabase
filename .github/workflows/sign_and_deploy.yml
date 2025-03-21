@@ -1,9 +1,14 @@
-name: Sign and Deploy to gh-pages
+name: Sign and Deploy
 
 on:
   push:
     branches:
       - unsigned
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: write
 
 jobs:
   sign-and-deploy:
