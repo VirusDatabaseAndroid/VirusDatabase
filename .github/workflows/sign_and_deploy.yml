@@ -11,50 +11,30 @@ permissions:
   actions: write
 
 jobs:
-  sign:
+  deploy:
     runs-on: ubuntu-latest
-
+    
     steps:
-      - name: Checkout Code
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Import GPG Key
+      - name: Setup Git
         run: |
-          echo "$GPG_PRIVATE_KEY" | base64 --decode | gpg --batch --import
-          gpg --list-secret-keys --keyid-format LONG
-        env:
-          GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
 
-
-
-      - name: Sign File
+      - name: Switch to gh-pages branch
         run: |
-          gpg --local-user 5298C0C0C3E73288 --armor --output hypatia-domains-bloom.bin.sig --detach-sig hypatia-domains-bloom.bin
-          echo "✅ File signed using key 5298C0C0C3E73288"
-
-      - name: Debug Signing Result
-        run: |
-          gpg --verify hypatia-domains-bloom.bin.sig hypatia-domains-bloom.bin
-
-      - name: Checkout gh-pages Branch
-        run: |
-          git fetch origin gh-pages || git checkout --orphan gh-pages
+          git fetch origin gh-pages
           git checkout gh-pages
-          mkdir -p signed
 
-      - name: Move Signed Files
+      - name: Copy Updated Database
         run: |
-          mv hypatia-domains-bloom.bin signed/
-          mv hypatia-domains-bloom.bin.sig signed/
+          cp hypatia-domains-bloom.bin ./hypatia-domains-bloom.bin
 
-      - name: Configure Git
+      - name: Commit and Push Changes
         run: |
-          git config --local user.name "GitHub Actions"
-          git config --local user.email "actions@github.com"
-
-      - name: Commit and Push
-        run: |
-          git add .
-          git commit -m "Signed file using key 5298C0C0C3E73288"
+          git add hypatia-domains-bloom.bin
+          git commit -m "Deploy updated database [$(date)]" || echo "No changes to commit"
           git push origin gh-pages
 
