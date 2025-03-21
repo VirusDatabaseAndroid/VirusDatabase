@@ -11,35 +11,28 @@ permissions:
   actions: write
 
 jobs:
-  sign-and-deploy:
+  sign:
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
-      
-      - name: Debug Git Branches
-        run: |
-          git fetch --all
-          git branch -a
-          git ls-remote --heads origin
 
       - name: Import GPG Key
         run: |
           echo "$GPG_PRIVATE_KEY" | gpg --batch --import
+          gpg --list-secret-keys --keyid-format LONG
         env:
           GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
 
-      - name: Configure Git for Signing
-        run: |
-          git config --local user.name "GitHub Actions"
-          git config --local user.email "actions@github.com"
-          git config --local commit.gpgSign true
-          git config --local user.signingkey "5298C0C0C3E73288"
-
       - name: Sign File
         run: |
-          gpg --armor --output hypatia-domains-bloom.bin.sig --detach-sig hypatia-domains-bloom.bin
+          gpg --local-user 5298C0C0C3E73288 --armor --output hypatia-domains-bloom.bin.sig --detach-sig hypatia-domains-bloom.bin
+          echo "✅ File signed using key 5298C0C0C3E73288"
+
+      - name: Debug Signing Result
+        run: |
+          gpg --verify hypatia-domains-bloom.bin.sig hypatia-domains-bloom.bin
 
       - name: Checkout gh-pages Branch
         run: |
@@ -52,9 +45,14 @@ jobs:
           mv hypatia-domains-bloom.bin signed/
           mv hypatia-domains-bloom.bin.sig signed/
 
-      - name: Commit and Push Changes
+      - name: Configure Git
+        run: |
+          git config --local user.name "GitHub Actions"
+          git config --local user.email "actions@github.com"
+
+      - name: Commit and Push
         run: |
           git add .
-          git commit -S -m "Signed and Deployed using key 5298C0C0C3E73288"
+          git commit -m "Signed file using key 5298C0C0C3E73288"
           git push origin gh-pages
 
