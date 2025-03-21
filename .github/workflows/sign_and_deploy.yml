@@ -10,6 +10,7 @@ permissions:
   contents: write
   actions: write
 
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -20,24 +21,20 @@ jobs:
         with:
           ref: unsigned
 
-      - name: Switch to gh-pages branch
+      - name: Fetch and Switch to gh-pages branch
         run: |
           git fetch origin gh-pages
           git checkout gh-pages
 
-      - name: Move Updated Database Files
+      - name: Copy Updated Database Files
         run: |
-          mv ../hypatia-md5-bloom.bin .
-          mv ../hypatia-sha1-bloom.bin .
-          mv ../hypatia-sha256-bloom.bin .
-
-      - name: Setup Git
-        run: |
-          git config user.name "GitHub Actions"
-          git config user.email "actions@github.com"
+          git checkout unsigned -- hypatia-md5-bloom.bin hypatia-sha1-bloom.bin hypatia-sha256-bloom.bin
 
       - name: Commit and Push Changes
         run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
           git add hypatia-md5-bloom.bin hypatia-sha1-bloom.bin hypatia-sha256-bloom.bin
-          git commit -m "Deploy updated database files [$(date)]" || echo "No changes to commit"
+          git commit -m "Deploy updated database files from unsigned branch [$(date)]" || echo "No changes to commit"
           git push origin gh-pages
+
