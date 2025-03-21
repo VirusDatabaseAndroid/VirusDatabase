@@ -13,63 +13,48 @@ permissions:
 jobs:
   sign-and-deploy:
     runs-on: ubuntu-latest
-
+    
     steps:
-      # Checkout repository
-      - name: Checkout Repository
+      - name: Checkout Code
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      # Debug Git branches
+      
       - name: Debug Git Branches
         run: |
           git fetch --all
           git branch -a
           git ls-remote --heads origin
 
-      # Import GPG Key from secret
       - name: Import GPG Key
-        env:
-          GPG_KEY: ${{ secrets.GPG_KEY }}
         run: |
-          echo "$GPG_KEY" | base64 --decode > gpg.key
-          gpg --import gpg.key
-          rm gpg.key
+          echo "$GPG_PRIVATE_KEY" | gpg --batch --import
+        env:
+          GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
 
-      # Sign the file
+      - name: Configure Git for Signing
+        run: |
+          git config --local user.name "GitHub Actions"
+          git config --local user.email "actions@github.com"
+          git config --local commit.gpgSign true
+          git config --local user.signingkey "5298C0C0C3E73288"
+
       - name: Sign File
         run: |
-          gpg --output hypatia-domains-bloom.bin.sig --detach-sign hypatia-domains-bloom.bin
+          gpg --armor --output hypatia-domains-bloom.bin.sig --detach-sig hypatia-domains-bloom.bin
 
-      # Debug Signed Files
-      - name: Debug Signed Files
-        run: |
-          ls -lh hypatia-domains-bloom.*
-
-      # Checkout gh-pages branch
       - name: Checkout gh-pages Branch
         run: |
-          git checkout gh-pages || git checkout --orphan gh-pages
+          git fetch origin gh-pages || git checkout --orphan gh-pages
+          git checkout gh-pages
+          mkdir -p signed
 
-      # Move files to gh-pages
-      - name: Move Signed Files to gh-pages
+      - name: Move Signed Files
         run: |
-          mv hypatia-domains-bloom.bin hypatia-domains-bloom.bin.sig .
+          mv hypatia-domains-bloom.bin signed/
+          mv hypatia-domains-bloom.bin.sig signed/
 
-      # Force update timestamps (if needed)
-      - name: Force File Update
-        run: |
-          touch hypatia-domains-bloom.bin hypatia-domains-bloom.bin.sig
-
-      # Commit changes (even if no new changes)
-      - name: Commit Changes
+      - name: Commit and Push Changes
         run: |
           git add .
-          git commit -m "Signed release" --allow-empty || echo "No changes to commit"
-
-      # Push to gh-pages
-      - name: Push Changes to gh-pages
-        run: |
-          git push origin gh-pages --force
+          git commit -S -m "Signed and Deployed using key 5298C0C0C3E73288"
+          git push origin gh-pages
 
