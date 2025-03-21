@@ -15,42 +15,30 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+      - name: Checkout code
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
-      # ✅ Checkout gh-pages branch to access GPG key
-      - name: Fetch GPG key from gh-pages branch
+      # Debug step to verify branch existence
+      - name: Debug Git Branches
         run: |
-          git fetch origin gh-pages
-          git checkout gh-pages -- gpg.key
+          git fetch --all
+          git branch -a
+          git ls-remote --heads origin
+      
+      - name: Setup Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
 
-      - name: Import GPG key
+      - name: Checkout gh-pages branch
         run: |
-          gpg --import gpg.key
+          git checkout gh-pages || git checkout --orphan gh-pages
+          
+      # Add other signing and deployment steps here
 
-      - name: Checkout unsigned branch
+      - name: Push to gh-pages
         run: |
-          git checkout unsigned
-
-      # ✅ Sign files and create `.sig` files
-      - name: Sign files
-        run: |
-          mkdir -p signed
-          for file in *; do
-            if [[ -f "$file" && "$file" != *.sig ]]; then
-              echo "Signing $file..."
-              gpg --batch --yes --detach-sign --armor -o "signed/$file.sig" "$file"
-              cp "$file" signed/
-            fi
-          done
-
-      # ✅ Push signed files to gh-pages branch
-      - name: Deploy signed files to gh-pages
-        run: |
-          git checkout gh-pages
-          cp -r signed/* .
           git add .
-          git commit -m "Signed files from unsigned branch"
+          git commit -m "Signed release"
           git push origin gh-pages
+
