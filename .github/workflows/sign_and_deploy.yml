@@ -20,22 +20,16 @@ jobs:
         with:
           ref: unsigned
 
-      - name: Copy Updated Database Files
-        run: |
-          cp hypatia-md5-bloom.bin $GITHUB_WORKSPACE/hypatia-md5-bloom.bin
-          cp hypatia-sha1-bloom.bin $GITHUB_WORKSPACE/hypatia-sha1-bloom.bin
-          cp hypatia-sha256-bloom.bin $GITHUB_WORKSPACE/hypatia-sha256-bloom.bin
-
       - name: Switch to gh-pages branch
         run: |
           git fetch origin gh-pages
           git checkout gh-pages
 
-      - name: Move Files to gh-pages
+      - name: Move Updated Database Files
         run: |
-          mv $GITHUB_WORKSPACE/hypatia-md5-bloom.bin .
-          mv $GITHUB_WORKSPACE/hypatia-sha1-bloom.bin .
-          mv $GITHUB_WORKSPACE/hypatia-sha256-bloom.bin .
+          mv ../hypatia-md5-bloom.bin .
+          mv ../hypatia-sha1-bloom.bin .
+          mv ../hypatia-sha256-bloom.bin .
 
       - name: Setup Git
         run: |
