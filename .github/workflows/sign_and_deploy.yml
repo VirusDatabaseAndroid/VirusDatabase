@@ -15,28 +15,35 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-      - name: Checkout repository
+      - name: Checkout repository (unsigned branch)
         uses: actions/checkout@v4
+        with:
+          ref: unsigned
 
-      - name: Setup Git
+      - name: Copy Updated Database Files
         run: |
-          git config user.name "GitHub Actions"
-          git config user.email "actions@github.com"
+          cp hypatia-md5-bloom.bin $GITHUB_WORKSPACE/hypatia-md5-bloom.bin
+          cp hypatia-sha1-bloom.bin $GITHUB_WORKSPACE/hypatia-sha1-bloom.bin
+          cp hypatia-sha256-bloom.bin $GITHUB_WORKSPACE/hypatia-sha256-bloom.bin
 
       - name: Switch to gh-pages branch
         run: |
           git fetch origin gh-pages
           git checkout gh-pages
 
-      - name: Copy Updated Database Files
+      - name: Move Files to gh-pages
         run: |
-          cp hypatia-md5-bloom.bin ./hypatia-md5-bloom.bin
-          cp hypatia-sha1-bloom.bin ./hypatia-sha1-bloom.bin
-          cp hypatia-sha256-bloom.bin ./hypatia-sha256-bloom.bin
+          mv $GITHUB_WORKSPACE/hypatia-md5-bloom.bin .
+          mv $GITHUB_WORKSPACE/hypatia-sha1-bloom.bin .
+          mv $GITHUB_WORKSPACE/hypatia-sha256-bloom.bin .
+
+      - name: Setup Git
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
 
       - name: Commit and Push Changes
         run: |
           git add hypatia-md5-bloom.bin hypatia-sha1-bloom.bin hypatia-sha256-bloom.bin
           git commit -m "Deploy updated database files [$(date)]" || echo "No changes to commit"
           git push origin gh-pages
-
