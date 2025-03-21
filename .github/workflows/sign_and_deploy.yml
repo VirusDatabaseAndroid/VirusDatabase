@@ -15,30 +15,61 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
+      # Checkout repository
+      - name: Checkout Repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-      # Debug step to verify branch existence
+      # Debug Git branches
       - name: Debug Git Branches
         run: |
           git fetch --all
           git branch -a
           git ls-remote --heads origin
-      
-      - name: Setup Git
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
 
-      - name: Checkout gh-pages branch
+      # Import GPG Key from secret
+      - name: Import GPG Key
+        env:
+          GPG_KEY: ${{ secrets.GPG_KEY }}
+        run: |
+          echo "$GPG_KEY" | base64 --decode > gpg.key
+          gpg --import gpg.key
+          rm gpg.key
+
+      # Sign the file
+      - name: Sign File
+        run: |
+          gpg --output hypatia-domains-bloom.bin.sig --detach-sign hypatia-domains-bloom.bin
+
+      # Debug Signed Files
+      - name: Debug Signed Files
+        run: |
+          ls -lh hypatia-domains-bloom.*
+
+      # Checkout gh-pages branch
+      - name: Checkout gh-pages Branch
         run: |
           git checkout gh-pages || git checkout --orphan gh-pages
-          
-      # Add other signing and deployment steps here
 
-      - name: Push to gh-pages
+      # Move files to gh-pages
+      - name: Move Signed Files to gh-pages
+        run: |
+          mv hypatia-domains-bloom.bin hypatia-domains-bloom.bin.sig .
+
+      # Force update timestamps (if needed)
+      - name: Force File Update
+        run: |
+          touch hypatia-domains-bloom.bin hypatia-domains-bloom.bin.sig
+
+      # Commit changes (even if no new changes)
+      - name: Commit Changes
         run: |
           git add .
-          git commit -m "Signed release"
-          git push origin gh-pages
+          git commit -m "Signed release" --allow-empty || echo "No changes to commit"
+
+      # Push to gh-pages
+      - name: Push Changes to gh-pages
+        run: |
+          git push origin gh-pages --force
 
