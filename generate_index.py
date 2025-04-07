@@ -10,9 +10,8 @@ except Exception as e:
     print(f"Error reading generation_time.html: {e}")
     gen_time = datetime.now()
 
-# Prepare file list
+# Collect file entries (excluding some files)
 entries = []
-
 for filename in sorted(os.listdir(".")):
     if filename in [".git", ".github", "generate_index.py", "index.html"]:
         continue
@@ -21,17 +20,19 @@ for filename in sorted(os.listdir(".")):
     size = os.path.getsize(filename)
     entries.append((filename, size))
 
-# Find the longest filename for padding
+# Get max width for filename
 max_name_length = max(len(name) for name, _ in entries) if entries else 0
 
-# Build text tree
+# Build tree lines with proper spacing
 tree_lines = []
 tree_lines.append(f"[{4096:>12} {gen_time.strftime('%d-%b-%Y %H:%M')}]    .")
 
 for i, (filename, size) in enumerate(entries):
     prefix = "└──" if i == len(entries) - 1 else "├──"
-    padded_name = f"{filename:<{max_name_length}}"  # Pad with spaces
-    line = f"{prefix} [{size:>12} {gen_time.strftime('%d-%b-%Y %H:%M')}]    <a href=\"./{filename}\">{padded_name}</a>"
+    size_str = f"{size:>12}"
+    date_str = gen_time.strftime("%d-%b-%Y %H:%M")
+    file_str = f"{filename:<{max_name_length}}"
+    line = f"{prefix} [{size_str} {date_str}]    <a href=\"./{filename}\">{file_str}</a>"
     tree_lines.append(line)
 
 tree_output = "<br>\n".join(tree_lines)
@@ -52,6 +53,8 @@ html = f"""<!DOCTYPE html>
     a {{
       color: #79b8ff;
       text-decoration: none;
+      display: inline-block;
+      min-width: {max_name_length}ch;
     }}
     a:hover {{
       text-decoration: underline;
@@ -67,6 +70,6 @@ html = f"""<!DOCTYPE html>
 </html>
 """
 
-# Write output
+# Write to index.html
 with open("index.html", "w") as f:
     f.write(html)
