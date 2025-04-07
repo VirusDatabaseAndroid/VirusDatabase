@@ -33,12 +33,20 @@ jobs:
 
       - name: Copy files from unsigned
         run: |
-          git checkout unsigned -- hypatia-md5-bloom.bin hypatia-sha1-bloom.bin hypatia-sha256-bloom.bin
+          git checkout unsigned -- \
+            hypatia-md5-bloom.bin \
+            hypatia-sha1-bloom.bin \
+            hypatia-sha256-bloom.bin \
+            database_generation_ci.txt \
+            generation_report.html \
+            generation_time.html \
+            template.html
 
       - name: Commit and push changes
         run: |
           if [[ -n "$(git status --porcelain)" ]]; then
-            git add hypatia-md5-bloom.bin hypatia-sha1-bloom.bin hypatia-sha256-bloom.bin
+            git add hypatia-md5-bloom.bin hypatia-sha1-bloom.bin hypatia-sha256-bloom.bin \
+                    database_generation_ci.txt generation_report.html generation_time.html template.html
             git commit -m "Auto-update from Generate Stable Database [$(date)]"
             git push origin gh-pages
           else
