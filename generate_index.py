@@ -5,7 +5,7 @@ from datetime import datetime
 try:
     with open("generation_time.html", "r") as f:
         content = f.read().strip()
-        gen_time = datetime.strptime(content, "%d-%b-%Y %H:%M")
+        gen_time = datetime.strptime(content, "%a %b %d %H:%M:%S %Z %Y")
 except Exception as e:
     print(f"Error reading generation_time.html: {e}")
     gen_time = datetime.now()
