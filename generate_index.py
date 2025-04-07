@@ -21,13 +21,17 @@ for filename in sorted(os.listdir(".")):
     size = os.path.getsize(filename)
     entries.append((filename, size))
 
+# Find the longest filename for padding
+max_name_length = max(len(name) for name, _ in entries) if entries else 0
+
 # Build text tree
 tree_lines = []
 tree_lines.append(f"[{4096:>12} {gen_time.strftime('%d-%b-%Y %H:%M')}]    .")
 
 for i, (filename, size) in enumerate(entries):
     prefix = "└──" if i == len(entries) - 1 else "├──"
-    line = f"{prefix} [{size:>12} {gen_time.strftime('%d-%b-%Y %H:%M')}]    <a href=\"./{filename}\">{filename}</a>"
+    padded_name = f"{filename:<{max_name_length}}"  # Pad with spaces
+    line = f"{prefix} [{size:>12} {gen_time.strftime('%d-%b-%Y %H:%M')}]    <a href=\"./{filename}\">{padded_name}</a>"
     tree_lines.append(line)
 
 tree_output = "<br>\n".join(tree_lines)
