@@ -1,8 +1,8 @@
-name: Generate Index for gh-pages
+name: Generate index.html on gh-pages
 
 on:
   push:
-    branches: [ gh-pages ]
+    branches: [main]
   workflow_dispatch:
 
 jobs:
@@ -10,24 +10,36 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout gh-pages branch
-      uses: actions/checkout@v3
-      with:
-        ref: gh-pages
+      - name: Checkout default branch (main)
+        uses: actions/checkout@v4
+        with:
+          path: main
 
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.x'
+      - name: Checkout gh-pages branch
+        uses: actions/checkout@v4
+        with:
+          ref: gh-pages
+          path: gh-pages
 
-    - name: Generate index.txt
-      run: python generate_index.py
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
 
-    - name: Commit and push updated index.html
-      run: |
-        git config --global user.name "GitHub Actions"
-        git config --global user.email "actions@github.com"
-        git add index.html
-        git commit -m "Update index.html from CI [gh-pages]" || echo "No changes"
-        git push
+      - name: Install dependencies
+        run: pip install jinja2
 
+      - name: Run generate_index.py
+        run: |
+          cp main/generate_index.py gh-pages/
+          cd gh-pages
+          python generate_index.py
+
+      - name: Commit and push updated index.html
+        run: |
+          cd gh-pages
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add index.html
+          git commit -m "Auto-update index.html" || echo "No changes to commit"
+          git push
