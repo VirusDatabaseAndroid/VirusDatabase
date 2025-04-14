@@ -16,10 +16,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout nurd branch
+      - name: Checkout nerd branch
         uses: actions/checkout@v4
         with:
-          ref: nurd
+          ref: nerd
 
       - name: Setup Git
         run: |
@@ -31,12 +31,12 @@ jobs:
           git fetch origin gh-pages
           git checkout gh-pages
 
-      - name: Copy files from nurd
+      - name: Copy files from nerd
         run: |
-          git checkout nurd -- \
-            nurd-md5.ai \
-            nurd-sha1.ai \
-            nurd-sha256.ai \
+          git checkout nerd -- \
+            nerd-md5.ai \
+            nerd-sha1.ai \
+            nerd-sha256.ai \
             database_generation_ci.txt \
             generation_report.html \
             generation_time.html \
@@ -45,7 +45,7 @@ jobs:
       - name: Commit and push changes
         run: |
           if [[ -n "$(git status --porcelain)" ]]; then
-            git add nurd-md5.ai nurd-sha1.ai nurd-sha256.ai \
+            git add nerd-md5.ai nerd-sha1.ai nerd-sha256.ai \
                     database_generation_ci.txt generation_report.html generation_time.html template.html
             git commit -m "Auto-update from Generate Stable Database [$(date)]"
             git push origin gh-pages
