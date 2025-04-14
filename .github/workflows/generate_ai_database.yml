@@ -1,4 +1,4 @@
-name: Generate Stable Database
+name: Generate Stable AI Database
 
 on:
   workflow_dispatch:
