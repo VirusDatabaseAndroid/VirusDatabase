@@ -36,7 +36,7 @@ import java.util.regex.Pattern;
 //import org.sqlite.*;
 //import java.sql.*;
 
-public class App {
+public class Nurd {
 
     private static BloomFilter<String> signaturesMD5Dedupe = null;
     private static BloomFilter<String> signaturesMD5 = null;
