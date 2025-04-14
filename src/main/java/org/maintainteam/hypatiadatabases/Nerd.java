@@ -36,7 +36,7 @@ import java.util.regex.Pattern;
 //import org.sqlite.*;
 //import java.sql.*;
 
-public class Nurd {
+public class Nerd {
 
     private static BloomFilter<String> signaturesMD5Dedupe = null;
     private static BloomFilter<String> signaturesMD5 = null;
@@ -80,7 +80,7 @@ public class Nurd {
         signaturesSHA1 = BloomFilter.create(Funnels.stringFunnel(Charsets.US_ASCII), amtMaxSHA1, 0.00001);
         signaturesSHA256 = BloomFilter.create(Funnels.stringFunnel(Charsets.US_ASCII), amtMaxSHA256, 0.00001);
         domains = BloomFilter.create(Funnels.stringFunnel(Charsets.US_ASCII), amtMaxDomains, 0.00001);
-        File existingDatabase = new File(args[0] + "../production/nurd-md5.bin");
+        File existingDatabase = new File(args[0] + "../production/nerd-md5.bin");
         if (extendedMode && existingDatabase.exists()) {
             try {
                 System.out.println("Loading existing hypatia-md5-bloom.bin database");
@@ -232,19 +232,19 @@ public class Nurd {
             System.out.println("\tExclusions were found!");
         }
         try {
-            FileOutputStream fileSignaturesMD5 = new FileOutputStream(new File(args[0]) + "/nurd-md5.ai");
+            FileOutputStream fileSignaturesMD5 = new FileOutputStream(new File(args[0]) + "/nerd-md5.ai");
             signaturesMD5.writeTo(fileSignaturesMD5);
             fileSignaturesMD5.close();
 
-            FileOutputStream fileSignaturesSHA1 = new FileOutputStream(new File(args[0]) + "/nurd-sha1.ai");
+            FileOutputStream fileSignaturesSHA1 = new FileOutputStream(new File(args[0]) + "/nerd-sha1.ai");
             signaturesSHA1.writeTo(fileSignaturesSHA1);
             fileSignaturesSHA1.close();
 
-            FileOutputStream fileSignaturesSHA256 = new FileOutputStream(new File(args[0]) + "/nurd-sha256.ai");
+            FileOutputStream fileSignaturesSHA256 = new FileOutputStream(new File(args[0]) + "/nerd-sha256.ai");
             signaturesSHA256.writeTo(fileSignaturesSHA256);
             fileSignaturesSHA256.close();
 
-            FileOutputStream fileDomains = new FileOutputStream(new File(args[0]) + "/nurd-domains.ai");
+            FileOutputStream fileDomains = new FileOutputStream(new File(args[0]) + "/nerd-domains.ai");
             domains.writeTo(fileDomains);
             fileDomains.close();
         } catch (Exception e) {
