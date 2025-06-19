@@ -158,8 +158,10 @@ public class AppResize {
             String[] parts = line.split(";");
             if (parts.length > 0) potentialHash = parts[0];
         }
-
-        addChecked(potentialHash.trim(), true);
+        if (fileName.endsWith(".hdb") || fileName.endsWith(".hsb") || fileName.endsWith(".hdu") || fileName.endsWith(".hsu") || fileName.endsWith(".md5") || fileName.endsWith(".sha1") || fileName.endsWith(".sha256") || fileName.endsWith(".hashes") || fileName.endsWith(".loki") || fileName.endsWith(".txt")) {
+            addChecked(potentialHash.trim(), true);
+        }
+        //addChecked(potentialHash.trim(), true);
     }
 
     private static void addChecked(String hash, boolean report) {
