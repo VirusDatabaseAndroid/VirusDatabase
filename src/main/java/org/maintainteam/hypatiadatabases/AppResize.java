@@ -1,6 +1,5 @@
 package org.maintainteam.hypatiadatabases;
 
-import com.google.common.base.CharMatcher;
 import com.google.common.base.Charsets;
 import com.google.common.hash.BloomFilter;
 import com.google.common.hash.Funnels;
@@ -10,13 +9,16 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.*;
 import java.util.Arrays;
-import java.util.stream.Stream;
-import java.util.zip.GZIPInputStream;
+import java.util.HashSet;
+import java.util.Scanner;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
+import java.util.zip.GZIPInputStream;
 
 public class AppResize {
     private static BloomFilter<String> signaturesMD5;
