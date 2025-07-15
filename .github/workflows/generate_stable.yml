@@ -73,7 +73,15 @@ jobs:
       - name: DATABASE PREPARATION - Signature-Base
         run: |
           wget https://raw.githubusercontent.com/Neo23x0/signature-base/refs/heads/master/iocs/hash-iocs.txt -O "${{ github.workspace }}/raw/signature-base.loki"
-          wget https://raw.githubusercontent.com/Neo23x0/signature-base/refs/heads/master/iocs/otx-hash-iocs.txt -O "${{ github.workspace }}/raw/signature-base-otx.loki"
+          URL="https://raw.githubusercontent.com/Neo23x0/signature-base/refs/heads/master/iocs/otx-hash-iocs.txt"
+          OUT="${{ github.workspace }}/raw/signature-base-otx.loki"
+
+          if curl --output /dev/null --silent --head --fail "$URL"; then
+            wget "$URL" -O "$OUT"
+          else
+            echo "File not found: $URL"
+          fi
+
 
       - name: DATABASE PREPARATION - ThreatView
         run: |
